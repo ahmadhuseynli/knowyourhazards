@@ -1,4 +1,3 @@
-
 import streamlit as st
 import re
 
@@ -9,8 +8,8 @@ st.markdown("### Manual Hazard Entry and Classification")
 
 # --- Regulatory Check ---
 st.header("1. Regulatory Exemption")
-reg1 = st.text_input("Is the substance listed in REACH Annex IV / V?", "")
-reg2 = st.text_input("Is the substance listed in OSPAR PLONOR?", "")
+reg1 = st.selectbox("Is the substance listed in REACH Annex IV / V?", ["", "Yes", "No"])
+reg2 = st.selectbox("Is the substance listed in OSPAR PLONOR?", ["", "Yes", "No"])
 
 # --- GHS Classification ---
 st.header("2. GHS Hazard Statement")
@@ -90,9 +89,9 @@ def biodeg_score(txt):
 # --- Button to Run Logic ---
 if st.button("Run Hazard Assessment", key="run_button"):
 
-    if (reg1 == "" and reg2 == "") or        (reg1 != "" and "not listed" not in reg1.lower()) or        (reg2 != "" and "not listed" not in reg2.lower()):
-        st.info("All components are pre-approved or exempt. Assessment skipped.")
-    else:
+    if reg1 == "" or reg2 == "":
+        st.warning("Please complete the regulatory exemption section before proceeding.")
+    elif "No" in (reg1, reg2):  # proceed to hazard assessment
         orgAcScore = extract_score(orgAc)
         orgChScore = extract_score(orgCh)
         metAcScore = min(metal_score(metalAc), 4)
@@ -130,3 +129,6 @@ if st.button("Run Hazard Assessment", key="run_button"):
             f"{rating}"
         )
         st.success(statement)
+
+    else:
+        st.info("All components are pre-approved or exempt. Hazard assessment skipped.")
